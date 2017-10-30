@@ -3,7 +3,7 @@ import math
 import pygame
 from pygame.math import Vector2
 
-FPS = 50
+FPS = 60
 SCREEN_WIDTH, SCREEN_HEIGHT = SCREEN_SIZE = (640, 480)
 
 # Colors
@@ -59,3 +59,8 @@ class World:
             if distance < radius:
                 return entity
         return None
+
+    def entities_with_name(self, name):
+        def is_entity(entity):
+            return entity.name == name
+        return filter(is_entity, self.entities.values())

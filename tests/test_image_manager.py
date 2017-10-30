@@ -19,7 +19,7 @@ class ImageManagerTestCaseB(unittest.TestCase):
         pygame.init()
         self.screen = pygame.display.set_mode((640, 480))
 
-        self.path = 'data/images/'
+        self.path = '../data/images/'
         self.imagedude = ImageManager(self.path)   # Load images from data/images/
 
         self.bg = pygame.image.load(os.path.join(self.path, 'backgroundA.jpg')).convert()   # Load image

@@ -134,7 +134,8 @@ class SurvivorExploreState(ZombieExploreState):
             self.random_destination()
 
     def check_conditions(self):
-        if self.entity.hp < self.entity.MAX_HP:
+        zombies = tuple(self.entity.world.entities_with_name('zombie'))
+        if self.entity.hp < self.entity.MAX_HP and len(zombies) > 0:
             return 'panic'
         return None
 
@@ -143,8 +144,10 @@ class SurvivorPanicState(SurvivorExploreState):
     def __init__(self, survivor):
         super().__init__(survivor)
         self.name = 'panic'
+        self.original_speed = self.entity.speed
 
     def entry_actions(self):
+        self.original_speed = self.entity.speed
         self.entity.speed = 300
 
     def do_actions(self):
@@ -153,12 +156,21 @@ class SurvivorPanicState(SurvivorExploreState):
             self.random_destination()
 
     def check_conditions(self):
+        # Survivor should stop panicking once there are no more zombies...
+        zombies = tuple(self.entity.world.entities_with_name('zombie'))
+
+        #if not any(zombies):
+        if len(zombies) <= 0:
+            return 'explore'
         return None
+
+    def exit_actions(self):
+        self.entity.speed = self.original_speed
 
 
 class SentryGun(GameEntity):
     def __init__(self, world, image, location):
-        super().__init__(world, 'sentrygun', image, location)
+        super().__init__(world, 'sentry_gun', image, location)
         self.TURRET_ROTATION_RATE_DEGREES = 180
         self.turret_rotation_rate = math.radians(self.TURRET_ROTATION_RATE_DEGREES) # radians per second
         self.__turret_angle = 0

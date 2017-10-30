@@ -23,7 +23,7 @@ class GameEntityTestCase(unittest.TestCase):
 
         # Manually calculate rotation
         vec_diff = self.entityB.location - self.entityA.location
-        angle = -math.atan2(vec_diff.y, vec_diff.x)
+        angle = utilities.unit_angle(-math.atan2(vec_diff.y, vec_diff.x))
 
         self.assertAlmostEqual(angle, rotation_a, 4)
         self.assertAlmostEqual(angle, self.entityA.angle, 4)
@@ -34,7 +34,7 @@ class GameEntityTestCase(unittest.TestCase):
 
         # Manually calculate rotation
         vec_diff = self.entityB.location - self.entityA.location
-        angle = -math.atan2(vec_diff.y, vec_diff.x)
+        angle = utilities.unit_angle(-math.atan2(vec_diff.y, vec_diff.x))
 
         self.assertAlmostEqual(angle, rotation_a, 4)
         self.assertAlmostEqual(angle, self.entityA.angle, 4)
@@ -44,7 +44,7 @@ class GameEntityTestCase(unittest.TestCase):
 
         # Manually calculate angle
         vec_diff = self.entityB.location - self.entityA.location
-        calc_angle = -math.atan2(vec_diff.y, vec_diff.x)
+        calc_angle = utilities.unit_angle(-math.atan2(vec_diff.y, vec_diff.x))
 
         self.assertAlmostEqual(calc_angle, angle, 4)
 
