@@ -5,14 +5,14 @@ import utilities
 
 
 class GameEntity:
-    def __init__(self, world, name, image, location=None):
+    """GameEntity that has states"""
+    def __init__(self, world, name, image, location=None, destination=None):
         self.world = world
         self.name = name
         self.image = image
         self.location = Vector2(location) if location is not None else Vector2(0, 0)
-        self.destination = Vector2(0, 0)
+        self.destination = Vector2(destination) if destination is not None else Vector2(0, 0)
         self.speed = 0.0
-        self.brain = StateMachine()
         self.id = 0
         self.__angle = 0.0
 
@@ -30,7 +30,6 @@ class GameEntity:
         surface.blit(self.image, (x - w / 2, y - h / 2))
 
     def process(self, seconds_passed):
-        self.brain.think()
         if self.speed > 0 and self.location != self.destination:
             vec_to_destination = self.destination - self.location
             distance_to_destination = vec_to_destination.length()
@@ -56,6 +55,17 @@ class GameEntity:
         vec_diff = vectorb - vectora
         #return -math.atan2(vec_diff.y, vec_diff.x)
         return utilities.unit_angle(-math.atan2(vec_diff.y, vec_diff.x))
+
+
+class SentientEntity(GameEntity):
+    """GameEntity that has states, and is able to think..."""
+    def __init__(self, world, name, image, location=None):
+        super().__init__(world, name, image, location)
+        self.brain = StateMachine()
+
+    def process(self, seconds_passed):
+        self.brain.think()
+        super().process(seconds_passed)
 
 
 

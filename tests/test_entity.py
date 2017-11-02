@@ -12,11 +12,11 @@ class GameEntityTestCase(unittest.TestCase):
 
         x = SCREEN_WIDTH / 2
         y = SCREEN_HEIGHT / 2
-        self.entityA = GameEntity(self.world, 'dummy', self.entity_image, location=Vector2(x, y))
+        self.entityA = SentientEntity(self.world, 'dummy', self.entity_image, location=Vector2(x, y))
 
         x = SCREEN_WIDTH * 3 / 4
         y = SCREEN_HEIGHT * 3 / 4
-        self.entityB = GameEntity(self.world, 'dummy', self.entity_image, location=Vector2(x, y))
+        self.entityB = SentientEntity(self.world, 'dummy', self.entity_image, location=Vector2(x, y))
 
     def test_face_entity(self):
         rotation_a = self.entityA.face_entity(self.entityB)
@@ -40,7 +40,7 @@ class GameEntityTestCase(unittest.TestCase):
         self.assertAlmostEqual(angle, self.entityA.angle, 4)
 
     def test_get_angle(self):
-        angle = GameEntity.get_angle(self.entityA.location, self.entityB.location)
+        angle = SentientEntity.get_angle(self.entityA.location, self.entityB.location)
 
         # Manually calculate angle
         vec_diff = self.entityB.location - self.entityA.location

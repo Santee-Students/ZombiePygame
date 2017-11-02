@@ -47,10 +47,10 @@ def quit_game():
 
 def setup_world(world):
     # Create RED sprite for zombie
-    zombie_surf = pygame.Surface((32, 32)).convert()
+    zombie_surf = image_dude['zombie.png']
     zombie_surf.fill(RED)
 
-    for i in range(10):
+    for i in range(200):
         z_width, z_height = zombie_surf.get_size()
         randx = randint(z_width / 2, SCREEN_WIDTH - z_width / 2)
         randy = randint(z_height / 2, SCREEN_HEIGHT - z_height / 2)
@@ -70,9 +70,10 @@ def setup_world(world):
 
     sentry_gun_surf = image_dude['sentrygun.png']
     w, h = sentry_gun_surf.get_size()
-    x, y = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
-    sentry_gun = mobs.SentryGun(world, sentry_gun_surf, Vector2(x, y))
-    world.add_entity(sentry_gun)
+    for i in range(1, 2):
+        x, y = (SCREEN_WIDTH * i / 3, SCREEN_HEIGHT / 2)
+        sentry_gun = mobs.SentryGun(world, sentry_gun_surf, Vector2(x, y))
+        world.add_entity(sentry_gun)
 
     for e in world.entities.values():
         print(e)

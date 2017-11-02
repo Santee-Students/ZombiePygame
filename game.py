@@ -11,6 +11,7 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
 
 
 class World:
@@ -27,7 +28,8 @@ class World:
         self.entity_id += 1
 
     def remove_entity(self, entity):
-        del self.entities[entity.id]
+        if entity.id in self.entities.keys():
+            del self.entities[entity.id]
 
     def get(self, entity_id):
         """Retrieve an entity by id"""

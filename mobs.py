@@ -5,7 +5,7 @@ from pygame.math import Vector2
 import math
 import utilities
 
-class Zombie(GameEntity):
+class Zombie(SentientEntity):
     """A Zombie wandering aimlessly"""
 
     def __init__(self, world, image, location):
@@ -103,7 +103,7 @@ class ZombieAttackState(ZombieExploreState):
         self.target = None
 
 
-class Survivor(GameEntity):
+class Survivor(SentientEntity):
     """A survivor shooting at zombies"""
 
     def __init__(self, world, image, location):
@@ -168,7 +168,7 @@ class SurvivorPanicState(SurvivorExploreState):
         self.entity.speed = self.original_speed
 
 
-class SentryGun(GameEntity):
+class SentryGun(SentientEntity):
     def __init__(self, world, image, location):
         super().__init__(world, 'sentry_gun', image, location)
         self.TURRET_ROTATION_RATE_DEGREES = 180
@@ -190,7 +190,7 @@ class SentryGun(GameEntity):
             return
 
         # Rotate towards the target
-        angle = GameEntity.get_angle(self.location, self.target.location)
+        angle = SentientEntity.get_angle(self.location, self.target.location)
         self.turret_angle = angle
         # attack target
         self.target.hp -= 1
@@ -202,7 +202,7 @@ class SentryGun(GameEntity):
         surface.blit(rotated_image, (x - w / 2, y - h / 2))
 
     def turret_face_entity(self, entity):
-        angle = GameEntity.get_angle(self.location, entity.location)
+        angle = SentientEntity.get_angle(self.location, entity.location)
         self.turret_angle = angle
 
     @property
@@ -232,7 +232,7 @@ class SentryGun(GameEntity):
             zombies = filter(is_zombie, self.turret.world.entities.values())
 
             for zombie in zombies:
-                angle = GameEntity.get_angle(self.turret.location, zombie.location)
+                angle = SentientEntity.get_angle(self.turret.location, zombie.location)
                 if turret_angle - half_cone < angle <= turret_angle + half_cone:
                     self.turret.target = zombie
                     #print('New target:', zombie)

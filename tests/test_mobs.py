@@ -43,7 +43,7 @@ class SentryGunTestCase(unittest.TestCase):
 
     def test_target_acquire(self):
         # Make the turret face the zombie
-        angle = GameEntity.get_angle(self.sentry_gun.location, self.zombie.location)
+        angle = SentientEntity.get_angle(self.sentry_gun.location, self.zombie.location)
         self.sentry_gun.turret_angle = angle
         self.sentry_gun.brain.think()   # Switch states from scan to face
         print(self.sentry_gun.brain.active_state.name)
@@ -88,7 +88,7 @@ class SentryGunTestCase(unittest.TestCase):
 
     def test_attack_target(self):
         #self.sentry_gun.face_entity(self.zombie)
-        self.sentry_gun.turret_angle = GameEntity.get_angle(self.sentry_gun.location, self.zombie.location)
+        self.sentry_gun.turret_angle = SentientEntity.get_angle(self.sentry_gun.location, self.zombie.location)
         for i in range(10):
             self.sentry_gun.brain.think()
         current_state_name = self.sentry_gun.brain.active_state.name
