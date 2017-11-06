@@ -6,15 +6,17 @@ import utilities
 
 class GameEntity:
     """GameEntity that has states"""
-    def __init__(self, world, name, image, location=None, destination=None):
+    def __init__(self, world, name, image, location=None, destination=None, speed=0):
         self.world = world
         self.name = name
         self.image = image
         self.location = Vector2(location) if location is not None else Vector2(0, 0)
         self.destination = Vector2(destination) if destination is not None else Vector2(0, 0)
-        self.speed = 0.0
+        self.speed = speed
         self.id = 0
         self.__angle = 0.0
+        self.__rect = None    # represents the boundary rectangle
+        self.__rect_offset = None
 
     @property
     def angle(self):
@@ -56,6 +58,28 @@ class GameEntity:
         #return -math.atan2(vec_diff.y, vec_diff.x)
         return utilities.unit_angle(-math.atan2(vec_diff.y, vec_diff.x))
 
+    def set_rect(self, rect, vec_offset=None):
+        self.__rect = rect
+        if vec_offset is not None:
+            self.__rect_offset = vec_offset
+
+    def get_rect(self):
+        if self.__rect is not None:
+            new_rect = pygame.Rect(self.__rect)
+            new_rect.center = self.location
+            if self.__rect_offset is not None:
+                new_rect.x += self.__rect_offset.x
+                new_rect.y += self.__rect_offset.y
+            return new_rect
+
+        img_rect = self.image.get_rect()
+        img_rect.center = self.location
+        return img_rect
+
+    @property
+    def rect(self):
+        return self.get_rect()
+
 
 class SentientEntity(GameEntity):
     """GameEntity that has states, and is able to think..."""
@@ -66,8 +90,6 @@ class SentientEntity(GameEntity):
     def process(self, seconds_passed):
         self.brain.think()
         super().process(seconds_passed)
-
-
 
 
 class State:

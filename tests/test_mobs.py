@@ -6,6 +6,7 @@ from mobs import *
 from game import *
 from pygame.math import Vector2
 
+
 class SentryGunTestCase(unittest.TestCase):
     def setUp(self):
         pygame.init()

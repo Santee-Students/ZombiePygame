@@ -4,6 +4,8 @@ from game import *
 from pygame.math import Vector2
 import math
 import utilities
+from effects import *
+
 
 class Zombie(SentientEntity):
     """A Zombie wandering aimlessly"""
@@ -13,9 +15,10 @@ class Zombie(SentientEntity):
         self.brain.add_state(ZombieExploreState(self))
         self.brain.add_state(ZombieAttackState(self))
         self.brain.set_state('explore')
-        self.MAX_HP = 10
+        self.MAX_HP = 80
         self.hp = self.MAX_HP
         self.speed = 50
+        self.sight = 50
 
     def process(self, seconds_passed):
         super().process(seconds_passed)
@@ -72,16 +75,19 @@ class ZombieAttackState(ZombieExploreState):
     def acquire_target(self):
         if self.target is not None:
             return
-        target = self.zombie.world.get_close_entity('survivor', self.zombie.location, radius=50)
+        target = self.zombie.world.get_close_entity('survivor', self.zombie.location, radius=self.zombie.sight)
         if target is not None:
             self.target = target
 
     def do_actions(self):
+
+        # Keep wandering until a target is found
         if self.target is None:
             if randint(1, 10) == 1:
                 self.random_destination()
             self.acquire_target()
             return
+
         self.zombie.destination = self.target.location
         if self.zombie.location.distance_to(self.target.location) < 5:
             self.target.hp -= 1
@@ -189,17 +195,22 @@ class SentryGun(SentientEntity):
             self.turret_angle += self.turret_rotation_rate * seconds_passed
             return
 
-        # Rotate towards the target
-        angle = SentientEntity.get_angle(self.location, self.target.location)
-        self.turret_angle = angle
-        # attack target
-        self.target.hp -= 1
+        # # Rotate towards the target
+        # angle = SentientEntity.get_angle(self.location, self.target.location)
+        # self.turret_angle = angle
+        # # attack target
+        # self.target.hp -= 1
+        #self.world.add_entity(BulletTravelEffect(self.world, self.location, self.target.location, speed=2000, color=(128, 0, 255)))
+
 
     def render(self, surface):
         rotated_image = pygame.transform.rotate(self.image, math.degrees(self.turret_angle))
         x, y = self.location
         w, h = rotated_image.get_size()
         surface.blit(rotated_image, (x - w / 2, y - h / 2))
+
+        if self.target is not None:
+            pygame.draw.aaline(surface, VIOLET, self.location, self.target.location)
 
     def turret_face_entity(self, entity):
         angle = SentientEntity.get_angle(self.location, entity.location)
@@ -238,17 +249,17 @@ class SentryGun(SentientEntity):
                     #print('New target:', zombie)
                     return 'attack'
 
-    '''
-    class FaceTargetState(State):
-        def __init__(self, turret):
-            super().__init__('facing')
-            self.turret = turret
-    '''
-
     class AttackTargetState(State):
         def __init__(self, turret):
             super().__init__('attack')
             self.turret = turret
+
+        def do_actions(self):
+            # Rotate towards the target
+            angle = SentientEntity.get_angle(self.turret.location, self.turret.target.location)
+            self.turret.turret_angle = angle
+            # attack target
+            self.turret.target.hp -= 1
 
         def check_conditions(self):
             if self.turret.target.hp > 0 and self.turret.target is not None:

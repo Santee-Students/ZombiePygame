@@ -5,6 +5,7 @@ from pygame.math import Vector2
 
 FPS = 60
 SCREEN_WIDTH, SCREEN_HEIGHT = SCREEN_SIZE = (640, 480)
+TICK_SECOND = 1000 / FPS / 1000
 
 # Colors
 BLACK = (0, 0, 0)
@@ -12,6 +13,7 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
+VIOLET = (128, 0, 255)
 
 
 class World:
@@ -66,3 +68,6 @@ class World:
         def is_entity(entity):
             return entity.name == name
         return filter(is_entity, self.entities.values())
+
+    def entity_count(self):
+        return len(self.entities.values())

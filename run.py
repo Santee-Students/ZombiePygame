@@ -7,11 +7,13 @@ from manager import ImageManager
 from random import randint
 
 image_dude = None
+TITLE = 'Zombie Defence v0.0.0'
+
 
 def main():
     pygame.init()
     screen = pygame.display.set_mode(SCREEN_SIZE)
-    pygame.display.set_caption('Zombie Defence v0.0.0')
+    pygame.display.set_caption(TITLE)
     clock = pygame.time.Clock()
     world = World()
     global image_dude
@@ -20,6 +22,9 @@ def main():
 
     time_passed = 0
     while True:
+        if time_passed > 0:
+            pygame.display.set_caption('{title} {fps:>.0f} FPS'.format(title=TITLE, fps=1000 / time_passed))
+
         for event in pygame.event.get():
             if event.type == QUIT:
                 quit_game()
@@ -48,9 +53,8 @@ def quit_game():
 def setup_world(world):
     # Create RED sprite for zombie
     zombie_surf = image_dude['zombie.png']
-    zombie_surf.fill(RED)
 
-    for i in range(200):
+    for i in range(20):
         z_width, z_height = zombie_surf.get_size()
         randx = randint(z_width / 2, SCREEN_WIDTH - z_width / 2)
         randy = randint(z_height / 2, SCREEN_HEIGHT - z_height / 2)

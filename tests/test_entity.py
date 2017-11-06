@@ -3,6 +3,7 @@ from pygame.math import Vector2
 from game import *
 from entity import *
 
+
 class GameEntityTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -48,3 +49,63 @@ class GameEntityTestCase(unittest.TestCase):
 
         self.assertAlmostEqual(calc_angle, angle, 4)
 
+
+class GameEntityBoundaryRectTestCase(unittest.TestCase):
+    def setUp(self):
+        self.dummy_surf = pygame.Surface((32, 32))
+        self.location = Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+        self.world = World()
+        self.entity = GameEntity(self.world, 'dummy', self.dummy_surf, self.location)
+        self.world.add_entity(self.entity)
+
+        # What we're interested in:
+        self.rect_width = 16    # surface may have 32px width, but entity should really be 16px when performing things
+        self.rect_height = 32
+        self.boundary_rect = pygame.Rect((0, 0), (self.rect_width, self.rect_height))   # note: x/y don't matter
+        self.boundary_rect_offset = Vector2(-self.rect_width / 2, -self.rect_height)   # Offset from entity.location
+
+    def test_set_boundary_rect(self):
+        self.entity.set_rect(self.boundary_rect) # Should ignore rect x and y...
+        self.assertEqual(self.entity._GameEntity__rect.width, self.boundary_rect.width)
+        self.assertEqual(self.entity._GameEntity__rect.height, self.boundary_rect.height)
+
+    def test_set_boundary_rect_with_offset(self):
+        self.entity.set_rect(self.boundary_rect, self.boundary_rect_offset)  # Should ignore rect x and y...
+        self.assertEqual(self.entity._GameEntity__rect, self.boundary_rect)
+        self.assertEqual(self.entity._GameEntity__rect_offset, self.boundary_rect_offset)
+
+    def test_get_boundary_rect(self):
+        self.entity.set_rect(self.boundary_rect)
+        rect = self.entity.get_rect()
+
+        self.assertEqual(self.entity._GameEntity__rect.width, rect.width)
+        self.assertEqual(self.entity._GameEntity__rect.height, rect.height)
+        # Because there is no offset, the rect will be centered to location
+        self.assertEqual(rect.x, self.entity.location.x - rect.width / 2)
+        self.assertEqual(rect.y, self.entity.location.y - rect.height / 2)
+
+    def test_get_boundary_rect_with_offsets(self):
+        self.entity.set_rect(self.boundary_rect, self.boundary_rect_offset)
+        rect = self.entity.get_rect()
+        loc = self.entity.location
+        brect = self.boundary_rect
+
+        self.assertEqual(rect.x, loc.x - brect.width / 2 + self.boundary_rect_offset.x)
+        self.assertEqual(rect.y, loc.y - brect.height / 2 + self.boundary_rect_offset.y)
+
+    def test_get_boundary_rect_no_rect_height_width_only(self):
+        """Test the get_rect() method to return the entity's image rect instead of rect when there is none assigned.
+        This test will not concern the entity's rectangle's X/Y coordinates."""
+        rect = self.entity.get_rect()
+        image_rect = self.entity.image.get_rect()
+
+        self.assertEqual(rect.width, image_rect.width)
+        self.assertEqual(rect.height, image_rect.height)
+
+    def test_get_boundary_rect_no_rect(self):
+        """Continuation of above, but considers x and y attributes"""
+        rect = self.entity.get_rect()
+        image_rect = self.entity.image.get_rect()
+
+        self.assertEqual(rect.x, self.location.x - image_rect.width / 2)
+        self.assertEqual(rect.y, self.location.y - image_rect.height / 2)

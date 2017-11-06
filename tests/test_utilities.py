@@ -2,6 +2,7 @@ import math
 import unittest
 import utilities
 
+
 class UtilitiesTestCase(unittest.TestCase):
     def test_unit_circle_angle(self):
         angles = list(range(-20, 20))
