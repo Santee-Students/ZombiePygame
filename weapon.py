@@ -65,7 +65,6 @@ class Weapon:
         # if self.clip > self.MAX_CLIP:
 
 
-
 class ProjectileFactory:
     """Class that gives a new projectile object each time it is called.
     An instance of it will reside in a weapon object."""
@@ -75,24 +74,30 @@ class ProjectileFactory:
 
 class Projectile(GameEntity):
 
-    def __init__(self, world, name, image, location, direction_vec, speed=200, damage=0):
+    def __init__(self, world, name, image, location, direction_vec, speed=200, damage=0, max_distance=300):
         super().__init__(world, name, image, location, None, speed)
         self.direction = direction_vec
         self.damage = damage
+        self.origin = location
+        self.max_distance = max_distance
 
     def process(self, seconds_passed):
-        self.location += self.direction * seconds_passed * self.speed
+        if self.location.distance_to(self.origin) >= self.max_distance:
+            self.world.remove_entity(self)
+            return
+        self.location += self.direction * self.speed * seconds_passed
 
     def render(self, surface):
         if self.image is not None:
             super().render(surface)
             return
-        surface.draw.circle(surface, YELLOW, (int(self.location.x), int(self.location.y)), 2)
+        pygame.draw.circle(surface, YELLOW, (int(self.location.x), int(self.location.y)), 1)
 
     @staticmethod
     def factory(type_name, world, owner, weapon):
         angle = owner.angle if not hasattr(owner, 'turret_angle') else owner.turret_angle
-        direction = Vector2(1, 0).rotate(math.degrees(angle)).normalize()
+        angle *= -1 # Multiply by -1 to fix direction vector
+        direction = Vector2(1, 0).rotate(math.degrees(angle))
 
         if type_name == 'bullet':
             return Projectile(world, 'bullet', None, owner.location, direction, speed=500, damage=weapon.damage)
@@ -105,6 +110,8 @@ class Warhead:
 
 
 class WeaponSimplified(SentientEntity):
+    """A simple weapon that fires without reload; just a delay in between."""
+
     def __init__(self, world, owner, fire_rate, damage, ammo):
         self.world = world
         self.owner = owner
@@ -112,31 +119,23 @@ class WeaponSimplified(SentientEntity):
         self.damage = damage
         self.ammo = ammo
         self.accumulator = 0
+        self.ready_to_fire = True
 
     def process(self, seconds_passed):
-        self.fire(seconds_passed)
-
-    def fire(self, seconds_passed):
         if self.ammo <= 0:
             self.accumulator = 0
             return
 
-        shoot = self.fire_rate * seconds_passed
-        self.accumulator += shoot
-        discharge, remainder = divmod(self.accumulator, 1)
-        discharge = int(discharge)
-        self.ammo -= discharge
-        self.accumulator = remainder
+        self.accumulator += seconds_passed
 
-        if not discharge > 0:
+        if self.accumulator >= 1 / self.fire_rate:
+            _, self.accumulator = divmod(self.accumulator, 1 / self.fire_rate)
+            self.ready_to_fire = True
+
+    def fire(self):
+        if not self.ready_to_fire:
             return
-        # discharge # bullets
-        for x in range(discharge):
-            bullet = Projectile.factory('bullet', self.world, self.owner, self)
-            self.world.add_entity(bullet)
-
-
-
-def bullet_factory(owner):
-    """Return a bullet based on the owner's directions"""
-    pass
+        self.ready_to_fire = False
+        bullet = Projectile.factory('bullet', self.world, self.owner, self)
+        self.world.add_entity(bullet)
+        self.ammo -= 1

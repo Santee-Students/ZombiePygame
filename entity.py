@@ -17,6 +17,7 @@ class GameEntity:
         self.__angle = 0.0
         self.__rect = None    # represents the boundary rectangle
         self.__rect_offset = None
+        self.render_offset = None  # how much to offset the image by (relative to location) when rendering to a surface
 
     @property
     def angle(self):
@@ -27,7 +28,15 @@ class GameEntity:
         self.__angle = utilities.unit_angle(angle)
 
     def render(self, surface):
-        x, y = self.location
+        if self.image is None:
+            return
+
+        x, y = 0, 0
+        if self.render_offset is not None:
+            x = self.location.x + self.render_offset.x
+            y = self.location.y + self.render_offset.y
+        else:
+            x, y = self.location
         w, h = self.image.get_size()
         surface.blit(self.image, (x - w / 2, y - h / 2))
 
