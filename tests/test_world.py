@@ -43,3 +43,7 @@ class WorldTestCase(unittest.TestCase):
         self.assertEqual(len(zombies), NUM_ZOMBIES)
         self.assertEqual(len(survivors), NUM_SURVIVORS)
         self.assertEqual(len(sentry_guns), NUM_SENTRY_GUNS)
+
+    def test_get_close_entity_type_zombie(self):
+        z = self.world.get_close_entity('zombie', SCREEN_CENTER)
+        self.assertEqual(z.name, 'zombie')

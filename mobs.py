@@ -5,13 +5,15 @@ from pygame.math import Vector2
 import math
 import utilities
 from effects import *
+from weapon import WeaponSimplified
 
 
 class Zombie(SentientEntity):
     """A Zombie wandering aimlessly"""
+    NAME = 'zombie'
 
     def __init__(self, world, image, location):
-        super().__init__(world, 'zombie', image, location)
+        super().__init__(world, self.NAME, image, location)
         self.brain.add_state(ZombieExploreState(self))
         self.brain.add_state(ZombieAttackState(self))
         self.brain.set_state('explore')
@@ -19,9 +21,16 @@ class Zombie(SentientEntity):
         self.hp = self.MAX_HP
         self.speed = 50
         self.sight = 50
+        #self.enemies = [SentryGun.NAME, Survivor.NAME]
 
     def process(self, seconds_passed):
         super().process(seconds_passed)
+
+        bullet_entity = self.world.get_close_entity('bullet', self.location, self.rect.width / 2)
+        if bullet_entity is not None and bullet_entity.owner.name == SentryGun.NAME:
+            self.hp -= bullet_entity.damage
+            self.world.remove_entity(bullet_entity)
+
         if self.hp <= 0:
             self.world.remove_entity(self)
 
@@ -80,7 +89,6 @@ class ZombieAttackState(ZombieExploreState):
             self.target = target
 
     def do_actions(self):
-
         # Keep wandering until a target is found
         if self.target is None:
             if randint(1, 10) == 1:
@@ -111,9 +119,10 @@ class ZombieAttackState(ZombieExploreState):
 
 class Survivor(SentientEntity):
     """A survivor shooting at zombies"""
+    NAME = 'survivor'
 
     def __init__(self, world, image, location):
-        super().__init__(world, 'survivor', image, location)
+        super().__init__(world, self.NAME, image, location)
         self.brain.add_state(SurvivorExploreState(self))
         self.brain.add_state(SurvivorPanicState(self))
         self.brain.set_state('explore')
@@ -175,8 +184,10 @@ class SurvivorPanicState(SurvivorExploreState):
 
 
 class SentryGun(SentientEntity):
+    NAME = 'sentry_gun'
+
     def __init__(self, world, image, location):
-        super().__init__(world, 'sentry_gun', image, location)
+        super().__init__(world, self.NAME, image, location)
         self.TURRET_ROTATION_RATE_DEGREES = 180
         self.turret_rotation_rate = math.radians(self.TURRET_ROTATION_RATE_DEGREES) # radians per second
         self.__turret_angle = 0
@@ -189,12 +200,15 @@ class SentryGun(SentientEntity):
         self.brain.add_state(self.AttackTargetState(self))
         self.brain.set_state('scan')
 
+        self.weapon = WeaponSimplified(self.world, self, 10, 10, 10000, spread=10)
+
     def process(self, seconds_passed):
         super().process(seconds_passed)
         if self.target is None:
             self.turret_angle += self.turret_rotation_rate * seconds_passed
             return
 
+        self.weapon.process(seconds_passed)
         # # Rotate towards the target
         # angle = SentientEntity.get_angle(self.location, self.target.location)
         # self.turret_angle = angle
@@ -259,7 +273,8 @@ class SentryGun(SentientEntity):
             angle = SentientEntity.get_angle(self.turret.location, self.turret.target.location)
             self.turret.turret_angle = angle
             # attack target
-            self.turret.target.hp -= 1
+            #self.turret.target.hp -= 1
+            self.turret.weapon.fire()
 
         def check_conditions(self):
             if self.turret.target.hp > 0 and self.turret.target is not None:

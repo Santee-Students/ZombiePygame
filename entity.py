@@ -2,6 +2,7 @@ from pygame.math import Vector2
 import math
 import pygame
 import utilities
+#from mobs import *
 
 
 class GameEntity:
@@ -92,13 +93,23 @@ class GameEntity:
 
 class SentientEntity(GameEntity):
     """GameEntity that has states, and is able to think..."""
-    def __init__(self, world, name, image, location=None):
-        super().__init__(world, name, image, location)
+
+    def __init__(self, world, name, image, location=None, destination=None, speed=0, friends=None, enemies=None):
+        super().__init__(world, name, image, location, destination, speed)
+        self.friends = friends
+        self.enemies = enemies
         self.brain = StateMachine()
 
     def process(self, seconds_passed):
         self.brain.think()
         super().process(seconds_passed)
+
+    def get_close_enemy(self, radius=100):
+        for enemy in self.enemies:
+            e = self.world.get_close_entity(enemy, self.location, radius)
+            if e is not None:
+                return e
+        return None
 
 
 class State:

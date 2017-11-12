@@ -116,3 +116,4 @@ class SentryGunTestCase(unittest.TestCase):
         current_state_name = self.sentry_gun.brain.active_state.name
         self.assertEqual(current_state_name, 'scan')
 
+

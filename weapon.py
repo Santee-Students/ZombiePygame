@@ -1,3 +1,4 @@
+from random import *
 from entity import *
 from game import *
 
@@ -74,12 +75,13 @@ class ProjectileFactory:
 
 class Projectile(GameEntity):
 
-    def __init__(self, world, name, image, location, direction_vec, speed=200, damage=0, max_distance=300):
+    def __init__(self, world, name, image, location, direction_vec, speed=200, damage=0, max_distance=300, owner=None):
         super().__init__(world, name, image, location, None, speed)
         self.direction = direction_vec
         self.damage = damage
         self.origin = location
         self.max_distance = max_distance
+        self.owner = owner
 
     def process(self, seconds_passed):
         if self.location.distance_to(self.origin) >= self.max_distance:
@@ -97,12 +99,11 @@ class Projectile(GameEntity):
     def factory(type_name, world, owner, weapon):
         angle = owner.angle if not hasattr(owner, 'turret_angle') else owner.turret_angle
         angle *= -1 # Multiply by -1 to fix direction vector
-        direction = Vector2(1, 0).rotate(math.degrees(angle))
+        direction = Vector2(1, 0).rotate(math.degrees(angle) + uniform(-weapon.spread/2, weapon.spread/2))
 
         if type_name == 'bullet':
-            return Projectile(world, 'bullet', None, owner.location, direction, speed=500, damage=weapon.damage)
+            return Projectile(world, 'bullet', None, owner.location, direction, speed=500, damage=weapon.damage, owner=owner)
         raise ValueError('Unknown projectile type name {}'.format(type_name))
-
 
 
 class Warhead:
@@ -112,29 +113,35 @@ class Warhead:
 class WeaponSimplified(SentientEntity):
     """A simple weapon that fires without reload; just a delay in between."""
 
-    def __init__(self, world, owner, fire_rate, damage, ammo):
+    def __init__(self, world, owner, fire_rate, damage, ammo, spread=0):
         self.world = world
         self.owner = owner
         self.fire_rate = fire_rate
         self.damage = damage
         self.ammo = ammo
         self.accumulator = 0
+        self.spread = spread
         self.ready_to_fire = True
+
+    def render(self, surface):
+        return
 
     def process(self, seconds_passed):
         if self.ammo <= 0:
             self.accumulator = 0
             return
-
-        self.accumulator += seconds_passed
+        if self.ready_to_fire:
+            return
 
         if self.accumulator >= 1 / self.fire_rate:
-            _, self.accumulator = divmod(self.accumulator, 1 / self.fire_rate)
+            self.accumulator = 0
             self.ready_to_fire = True
+        self.accumulator += seconds_passed
 
     def fire(self):
-        if not self.ready_to_fire:
+        if not self.ready_to_fire or self.ammo <= 0:
             return
+
         self.ready_to_fire = False
         bullet = Projectile.factory('bullet', self.world, self.owner, self)
         self.world.add_entity(bullet)

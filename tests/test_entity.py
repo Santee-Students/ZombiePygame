@@ -5,7 +5,6 @@ from entity import *
 
 
 class GameEntityTestCase(unittest.TestCase):
-
     def setUp(self):
         self.world = World()
         self.ENTITY_WIDTH, self.ENTITY_HEIGHT = self.ENTITY_SIZE = (32, 32)
@@ -59,13 +58,13 @@ class GameEntityBoundaryRectTestCase(unittest.TestCase):
         self.world.add_entity(self.entity)
 
         # What we're interested in:
-        self.rect_width = 16    # surface may have 32px width, but entity should really be 16px when performing things
+        self.rect_width = 16  # surface may have 32px width, but entity should really be 16px when performing things
         self.rect_height = 32
-        self.boundary_rect = pygame.Rect((0, 0), (self.rect_width, self.rect_height))   # note: x/y don't matter
-        self.boundary_rect_offset = Vector2(-self.rect_width / 2, -self.rect_height)   # Offset from entity.location
+        self.boundary_rect = pygame.Rect((0, 0), (self.rect_width, self.rect_height))  # note: x/y don't matter
+        self.boundary_rect_offset = Vector2(-self.rect_width / 2, -self.rect_height)  # Offset from entity.location
 
     def test_set_boundary_rect(self):
-        self.entity.set_rect(self.boundary_rect) # Should ignore rect x and y...
+        self.entity.set_rect(self.boundary_rect)  # Should ignore rect x and y...
         self.assertEqual(self.entity._GameEntity__rect.width, self.boundary_rect.width)
         self.assertEqual(self.entity._GameEntity__rect.height, self.boundary_rect.height)
 
@@ -109,3 +108,47 @@ class GameEntityBoundaryRectTestCase(unittest.TestCase):
 
         self.assertEqual(rect.x, self.location.x - image_rect.width / 2)
         self.assertEqual(rect.y, self.location.y - image_rect.height / 2)
+
+
+class SentientEntitySidesTestCase(unittest.TestCase):
+    def setUp(self):
+        self.world = World()
+        self.good_guy_name = 'good_guy'
+        self.bad_guy_name = 'bad_fuy'
+        self.other_bad_guy_name = 'bad_man'
+
+        self.good_guy = SentientEntity(self.world, self.good_guy_name, None, Vector2(100, 100), speed=0,
+                                       enemies=[self.bad_guy_name, self.other_bad_guy_name])
+        self.bad_guy = SentientEntity(self.world, self.bad_guy_name, None, Vector2(150, 140), speed=0,
+                                      enemies=[self.good_guy_name])
+        self.bad_guy2 = SentientEntity(self.world, self.other_bad_guy_name, None,
+                                       Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), speed=0,
+                                       enemies=[self.good_guy_name])
+        self.world.add_entity(self.good_guy)
+        self.world.add_entity(self.bad_guy)
+        self.world.add_entity(self.bad_guy2)
+
+    def test_get_enemy_entity(self):
+        enemy = self.good_guy.get_close_enemy(radius=100)
+        self.assertIsNotNone(enemy)
+        self.assertIn(enemy.name, self.good_guy.enemies)
+
+    def test_get_enemy_entity_other_bad_guy(self):
+
+        # Replace other bad guy's location with first bad guys', and put the first far away
+        temp_loc = self.bad_guy.location
+        self.bad_guy.location = Vector2(*SCREEN_SIZE)
+        self.bad_guy2.location = temp_loc
+
+        enemy = self.good_guy.get_close_enemy(radius=100)
+        self.assertIsNotNone(enemy)
+        self.assertIn(enemy.name, self.good_guy.enemies)
+        self.assertEqual(enemy.name, self.other_bad_guy_name)
+
+    def test_get_enemy_entity_beyond_radius(self):
+        self.good_guy.location = (0, 0)
+        self.bad_guy.location = Vector2(*SCREEN_SIZE)
+        self.bad_guy2.location = Vector2(*SCREEN_SIZE)
+
+        enemy = self.good_guy.get_close_enemy(radius=100)
+        self.assertIsNone(enemy)
