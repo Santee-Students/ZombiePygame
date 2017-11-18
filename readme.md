@@ -3,9 +3,9 @@ My attempt at creating a top down zombie shooter game, test driven development s
 
 ## Demo video
 Demo video of run.py:
-![run.py demo](http://i3.ytimg.com/vi/PQMbPXDseP4/maxresdefault.jpg)
+![run.py demo](http://i3.ytimg.com/vi/PQMbPXDseP4/maxresdefault.jpg)(https://youtu.be/PQMbPXDseP4)
 
-Link: (https://youtu.be/PQMbPXDseP4)
+Link: 
 
 There are more in the demo folder.
 
