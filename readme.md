@@ -1,11 +1,8 @@
 # Zombie Pygame
 My attempt at creating a top down zombie shooter game, test driven development style!
 
-## Demo video
-Demo video of run.py:
-![run.py demo](http://i3.ytimg.com/vi/PQMbPXDseP4/maxresdefault.jpg)(https://youtu.be/PQMbPXDseP4)
-
-Link: 
+### Demo video
+[![run.py demo](http://i3.ytimg.com/vi/PQMbPXDseP4/maxresdefault.jpg)](https://youtu.be/PQMbPXDseP4)
 
 There are more in the demo folder.
 
