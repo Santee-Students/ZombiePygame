@@ -200,7 +200,7 @@ class SentryGun(SentientEntity):
         self.brain.add_state(self.AttackTargetState(self))
         self.brain.set_state('scan')
 
-        self.weapon = WeaponSimplified(self.world, self, 10, 10, 10000, spread=10)
+        self.weapon = WeaponSimplified(self.world, self, 10, 10, math.inf, spread=10)
 
     def process(self, seconds_passed):
         super().process(seconds_passed)
