@@ -1,0 +1,48 @@
+1. Install pyenv
+https://github.com/pyenv/pyenv
+
+------------------------------------------------------------------------------------------------
+--- [ Mac ]
+------------------------------------------------------------------------------------------------
+
+
+brew install pyenv
+echo 'eval "$(pyenv init --path)"' >> ~/.zprofile
+echo 'eval "$(pyenv init -)"' >> ~/.zshrc
+
+#install dependencies for building other versions...
+brew install openssl readline sqlite3 xz zlib
+
+
+pyenv install --list
+pyenv install 3.9.6
+
+brew install pyenv-virtualenv
+echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.zshrc
+
+https://apple.stackexchange.com/questions/388622/zsh-zprofile-zshrc-zlogin-what-goes-where
+
+
+https://medium.com/swlh/a-guide-to-python-virtual-environments-8af34aa106ac
+https://towardsdatascience.com/power-up-your-python-projects-with-visual-studio-code-401f78dd97eb
+
+
+------------------------------------------------------------------------------------------------
+--- [ Windows ]
+------------------------------------------------------------------------------------------------
+
+https://github.com/pyenv-win/pyenv-win
+
+https://chocolatey.org/install
+
+choco install pyenv-win
+
+pyenv rehash
+
+
+
+
+
+pyenv local 3.9.6
+
+NOTE: If you are running Windows 10 1905 or newer, you might need to disable the built-in Python launcher via Start > "Manage App Execution Aliases" and turning off the "App Installer" aliases for Python
